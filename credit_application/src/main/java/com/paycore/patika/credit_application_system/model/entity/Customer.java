@@ -1,7 +1,6 @@
 package com.paycore.patika.credit_application_system.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.paycore.patika.credit_application_system.model.entity.CreditApplication;
 import lombok.*;
 
 import javax.persistence.*;
@@ -9,8 +8,9 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +21,7 @@ public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    // @Column(name = "id", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false)
     private Integer id;
 
     @Column(name = "national_identity_number", updatable = false, nullable = false)
@@ -38,7 +38,7 @@ public class Customer {
 
     @NotBlank(message = "monthly income can not be null")
     @Column(name = "monthly_income")
-    private BigDecimal monthlyIncome;
+    private Double monthlyIncome;
 
     private String gender;
 
@@ -51,10 +51,9 @@ public class Customer {
     @Email
     private String email;
 
-    @Transient
     private Integer creditScore;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    private List<CreditApplication> creditApplications;
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = LAZY)
+    private CreditApplication creditApplication;
 
 }
