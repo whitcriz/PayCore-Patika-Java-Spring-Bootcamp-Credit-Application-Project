@@ -1,13 +1,17 @@
 package com.paycore.patika.credit_application_system.service.impl;
 
+import com.paycore.patika.credit_application_system.exception.InvalidRequestException;
 import com.paycore.patika.credit_application_system.exception.NotFoundException;
+import com.paycore.patika.credit_application_system.model.entity.CreditApplication;
 import com.paycore.patika.credit_application_system.model.entity.Customer;
 import com.paycore.patika.credit_application_system.repository.CustomerRepository;
 import com.paycore.patika.credit_application_system.service.CreditApplicationService;
 import com.paycore.patika.credit_application_system.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,11 +20,10 @@ import java.util.Optional;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final CreditApplicationService creditApplicationService;
 
 
     @Override
-    public boolean addCustomer(Customer customer) {
+    public boolean addCustomer(@Valid @RequestBody Customer customer) {
         customerRepository.save(customer);
         return true;
     }
@@ -41,14 +44,11 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.save(customer);
     }
 
-    @Override
-    public boolean deleteCustomer(Integer id) {
-        customerRepository.deleteById(id);
-        return true;
-    }
 
     @Override
     public boolean deleteCustomer(String nationalIdentityNumber) {
+        //Optional<Customer> customer = customerRepository.findByNationalIdentityNumber(nationalIdentityNumber);
+        //customer.orElseThrow(() -> new InvalidRequestException("Could not find a customer to delete!"));
         customerRepository.delete(getCustomer(nationalIdentityNumber));
         return true;
     }

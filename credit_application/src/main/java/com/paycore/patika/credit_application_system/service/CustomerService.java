@@ -14,7 +14,5 @@ public interface CustomerService {
 
     Customer updateCustomer(@RequestBody Customer customer);
 
-    boolean deleteCustomer(Integer id);
-
     boolean deleteCustomer(String nationalIdentityNumber);
 }
