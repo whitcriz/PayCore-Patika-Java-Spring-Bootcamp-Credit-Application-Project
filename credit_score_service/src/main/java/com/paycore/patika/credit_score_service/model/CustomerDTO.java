@@ -2,18 +2,36 @@ package com.paycore.patika.credit_score_service.model;
 
 import lombok.Data;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
+import java.io.Serializable;
 
 @Data
-public class CustomerDTO {
+public class CustomerDTO implements Serializable {
 
-    @Pattern(regexp = "[1-9]\\d{10}")
+    @NotNull(message = "national identity number can not be blank")
+    @Pattern(regexp = "[1-9][0-9]{10}")
     private String nationalIdentityNumber;
 
+    @NotBlank(message = "name can not be null")
     private String name;
+
+    @NotBlank(message = "surname can not be null")
     private String surname;
+
+    @NotBlank(message = "phone can not be null")
+    private String phone;
+
+    @Email
+    private String email;
+
+    @NotNull(message = "monthly income can not be null")
+    @Min(1)
     private Double monthlyIncome;
+
+    private String gender;
+
+    @Min(18)
+    private Integer age;
 
     @Min(1)
     private Integer creditScore;

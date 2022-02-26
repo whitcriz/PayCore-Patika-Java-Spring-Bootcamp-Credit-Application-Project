@@ -3,6 +3,7 @@ package com.paycore.patika.credit_score_service.messaging.consumer;
 import com.paycore.patika.credit_score_service.config.RabbitMQConfig;
 import com.paycore.patika.credit_score_service.messaging.producer.CreditScoreProducer;
 import com.paycore.patika.credit_score_service.model.CreditApplication;
+import com.paycore.patika.credit_score_service.model.CustomerDTO;
 import com.paycore.patika.credit_score_service.model.entity.Customer;
 import com.paycore.patika.credit_score_service.model.mapper.CustomerMapper;
 import com.paycore.patika.credit_score_service.repository.CustomerRepository;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class CreditApplicationListener {
+public class CustomerListener {
 
     @Autowired
     private CustomerService customerService;
@@ -26,13 +27,10 @@ public class CreditApplicationListener {
     @Autowired
     private CreditScoreProducer creditScoreProducer;
 
-    private final CustomerMapper CUSTOMER_MAPPER = Mappers.getMapper(CustomerMapper.class);
-
     @RabbitListener(queues = RabbitMQConfig.QUEUE)
-    public void consumeMessageFromQueue(CreditApplication creditApplication) {
-        Optional<Customer> customer = customerRepository.findByNationalIdentityNumber(creditApplication.getCustomer().getNationalIdentityNumber());
-        Customer updatedCustomer =customerService.updateCustomer(customer.orElse(customerService.addCustomer(creditApplication.getCustomer())));
-        creditApplication.setCreditScore(updatedCustomer.getCreditScore());
-        creditScoreProducer.publishCreditScore(creditApplication);
+    public void consumeMessageFromQueue(Customer customer) {
+        Optional<Customer> creditCustomer = customerRepository.findByNationalIdentityNumber(customer.getNationalIdentityNumber());
+        Customer updatedCustomer =customerService.updateCustomer(creditCustomer.orElse(customerService.addCustomer(customer)));
+        creditScoreProducer.publishCreditScore(updatedCustomer);
     }
 }
