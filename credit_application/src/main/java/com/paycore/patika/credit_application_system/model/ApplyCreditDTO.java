@@ -4,7 +4,6 @@ import com.paycore.patika.credit_application_system.model.entity.Customer;
 import lombok.Data;
 
 @Data
-public class CreditApplyDTO {
-
+public class ApplyCreditDTO {
     private Customer customer;
 }
