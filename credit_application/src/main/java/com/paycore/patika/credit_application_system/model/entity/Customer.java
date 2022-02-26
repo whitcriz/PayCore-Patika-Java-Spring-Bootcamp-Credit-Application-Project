@@ -1,5 +1,6 @@
 package com.paycore.patika.credit_application_system.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -47,6 +48,7 @@ public class Customer {
     @Transient
     private Integer creditScore;
 
+    @JsonIgnore
     @OneToMany(fetch = LAZY, mappedBy = "customer", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<CreditApplication> creditApplications;
 
