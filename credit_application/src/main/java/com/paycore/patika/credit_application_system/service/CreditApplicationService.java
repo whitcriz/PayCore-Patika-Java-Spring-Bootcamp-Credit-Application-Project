@@ -2,18 +2,20 @@ package com.paycore.patika.credit_application_system.service;
 
 import com.paycore.patika.credit_application_system.model.entity.CreditApplication;
 import com.paycore.patika.credit_application_system.model.entity.Customer;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
 public interface CreditApplicationService {
 
-    boolean createCreditApplication(@RequestBody CreditApplication creditApplication);
+    List<CreditApplication> getAllCreditApplicationsByCustomer(Customer customer);
 
-    List<CreditApplication> getAllCreditApplications();
+    String createCreditApplication(Customer customer);
 
-    CreditApplication getCreditApplicationByCustomer(String customerNationalIdentityNumber);
+    CreditApplication getActiveCreditApplicationByCustomer(Customer customer);
 
-    CreditApplication updateCreditApplication(CreditApplication creditApplication);
+    void UpdateNotResultedApplication(Customer customer);
+
+    boolean deleteCreditApplication(Customer customer);
+
 
 }

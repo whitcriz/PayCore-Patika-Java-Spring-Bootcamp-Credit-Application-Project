@@ -1,6 +1,7 @@
 package com.paycore.patika.credit_application_system.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.paycore.patika.credit_application_system.model.entity.ApplicationStatus;
 import com.paycore.patika.credit_application_system.model.entity.CreditResult;
 import lombok.Data;
 
@@ -18,6 +19,9 @@ public class CreditApplicationResultedDTO {
     private CreditResult creditResult;
 
     private Double creditLimit;
+
+    @Enumerated(EnumType.STRING)
+    private ApplicationStatus applicationStatus;
 
 
 }
