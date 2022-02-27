@@ -7,9 +7,10 @@ import com.paycore.patika.credit_application_system.service.CreditApplicationSer
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Component
+@Service
 public class CreditScoreListener {
 
     private final CreditApplicationService creditApplicationService;

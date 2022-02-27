@@ -34,23 +34,23 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE);
+    public DirectExchange exchange() {
+        return new DirectExchange(EXCHANGE);
     }
 
 
     @Bean
-    public TopicExchange exchange_score() { return new TopicExchange(EXCHANGE_SCORE);}
+    public DirectExchange exchange_score() { return new DirectExchange(EXCHANGE_SCORE);}
 
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
+    public Binding binding(Queue queue, DirectExchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
     }
 
     @Bean
-    public Binding binding_score(Queue queue_score, TopicExchange exchange_score) {
-        return BindingBuilder.bind(queue_score).to(exchange_score).with(ROUTING_KEY);
+    public Binding binding_score(Queue queue_score, DirectExchange exchange_score) {
+        return BindingBuilder.bind(queue_score).to(exchange_score).with(ROUTING_KEY_SCORE);
     }
 
 
