@@ -1,6 +1,5 @@
 package com.paycore.patika.credit_score_service.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,7 +24,7 @@ public class Customer implements Serializable {
     @NotBlank(message = "surname can not be null")
     private String surname;
 
-    @NotBlank(message = "monthly income can not be null")
+    @NotNull(message = "monthly income can not be null")
     @Min(1)
     @Column(name = "monthly_income")
     private Double monthlyIncome;
@@ -41,6 +40,7 @@ public class Customer implements Serializable {
     @Email
     private String email;
 
+    @Min(1)
     @Column(name = "credit_score")
     private Integer creditScore;
 }

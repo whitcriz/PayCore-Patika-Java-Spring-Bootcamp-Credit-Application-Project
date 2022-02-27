@@ -13,9 +13,7 @@ public interface CustomerService {
 
     Customer getCustomer(String nationalIdentityNumber);
 
-    Customer updateCustomer(@RequestBody Customer customer);
+   void updateCustomer(@RequestBody Customer customer);
 
-    boolean deleteCustomer(Integer id);
-
-    boolean deleteCustomer(String nationalIdentityNumber);
+   void updateCreditScore(Customer customer);
 }

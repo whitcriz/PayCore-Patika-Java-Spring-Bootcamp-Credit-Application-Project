@@ -1,10 +1,12 @@
 package com.paycore.patika.credit_score_service.service.impl;
 
 import com.paycore.patika.credit_score_service.exception.NotFoundException;
+import com.paycore.patika.credit_score_service.messaging.producer.CreditScoreProducer;
 import com.paycore.patika.credit_score_service.model.entity.Customer;
 import com.paycore.patika.credit_score_service.repository.CustomerRepository;
 import com.paycore.patika.credit_score_service.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,9 +19,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
 
+    private final CreditScoreProducer creditScoreProducer;
+
+
     private Integer CreditScoreCalculator() {
         Random random = new Random();
-        return random.ints(1,(1501)).findFirst().getAsInt();
+        return random.nextInt(2000)+1;
     }
 
     @Override
@@ -40,21 +45,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer updateCustomer(Customer customer) {
+    public void updateCustomer(Customer customer) {
+        Customer updatedCustomer = customerRepository.save(customer);
+    }
+
+    @Override
+    public void updateCreditScore(Customer customer) {
+        Integer creditScore = CreditScoreCalculator();
         customer.setCreditScore(CreditScoreCalculator());
-        return customerRepository.save(customer);
+        Customer updatedCustomer = customerRepository.save(customer);
+        creditScoreProducer.publishCreditScore(updatedCustomer);
     }
 
-
-    @Override
-    public boolean deleteCustomer(Integer id) {
-        customerRepository.deleteById(id);
-        return true;
-    }
-
-    @Override
-    public boolean deleteCustomer(String nationalIdentityNumber) {
-        customerRepository.delete(getCustomer(nationalIdentityNumber));
-        return true;
-    }
 }
