@@ -51,7 +51,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void updateCreditScore(Customer customer) {
-        Integer creditScore = CreditScoreCalculator();
         customer.setCreditScore(CreditScoreCalculator());
         Customer updatedCustomer = customerRepository.save(customer);
         creditScoreProducer.publishCreditScore(updatedCustomer);
