@@ -35,10 +35,6 @@ public class CreditApplication {
     private final Integer creditMultiplier = 4;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "resulted")
-    private Resulted resulted ;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "credit_result")
     private CreditResult creditResult ;
 
@@ -46,6 +42,7 @@ public class CreditApplication {
     private Double creditLimit;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "application_status")
     private ApplicationStatus applicationStatus;
 
     @NotNull(message = "Customer can not be null for credit application")

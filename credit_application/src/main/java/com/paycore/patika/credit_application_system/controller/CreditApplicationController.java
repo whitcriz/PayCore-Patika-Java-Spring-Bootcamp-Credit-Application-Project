@@ -1,22 +1,19 @@
 package com.paycore.patika.credit_application_system.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.paycore.patika.credit_application_system.messaging.producer.CustomerProducer;
+import com.paycore.patika.credit_application_system.exception.InvalidCreditApplyException;
 import com.paycore.patika.credit_application_system.model.CreditApplicationResultedDTO;
-import com.paycore.patika.credit_application_system.model.CreditApplyDTO;
-import com.paycore.patika.credit_application_system.model.entity.CreditApplication;
+import com.paycore.patika.credit_application_system.model.entity.*;
 import com.paycore.patika.credit_application_system.model.mapper.CreditApplicationResultedMapper;
-import com.paycore.patika.credit_application_system.model.mapper.CreditApplyMapper;
+import com.paycore.patika.credit_application_system.repository.CreditApplicationRepository;
 import com.paycore.patika.credit_application_system.service.CreditApplicationService;
+import com.paycore.patika.credit_application_system.service.CustomerService;
+import com.paycore.patika.credit_application_system.service.ObtainCreditService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.validation.constraints.Pattern;
 
 @Validated
 @RestController
@@ -25,31 +22,44 @@ import java.util.stream.Collectors;
 public class CreditApplicationController {
 
     private final CreditApplicationService creditApplicationService;
-    private final CustomerProducer customerProducer;
+
+    private final CustomerService customerService;
+
+    private final CreditApplicationRepository creditApplicationRepository;
+
+    private final ObtainCreditService obtainCreditService;
 
     private static final CreditApplicationResultedMapper CREDIT_APPLICATION_MAPPER = Mappers.getMapper(CreditApplicationResultedMapper.class);
 
-    @GetMapping("/all")
-    public List<CreditApplicationResultedDTO> getAllCreditApplications() {
-        List<CreditApplication> allCreditApplications = creditApplicationService.getAllCreditApplications();
-        return allCreditApplications.stream().map(CREDIT_APPLICATION_MAPPER::toDto).collect(Collectors.toList());
+
+    @GetMapping(value = "/{nationalIdentityNumber}")
+    public CreditApplicationResultedDTO getActiveAndApprovedCreditApplicationByCustomer(@PathVariable @Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
+        Customer customer = customerService.getCustomer(nationalIdentityNumber);
+        return CREDIT_APPLICATION_MAPPER.toDto(creditApplicationService.getActiveAndApprovedCreditApplicationByCustomer(customer));
     }
 
-    @GetMapping(value = "/{customerNationalIdentityNumber}")
-    public CreditApplicationResultedDTO getCreditApplicationByCustomer(@PathVariable @Size(min = 11, max = 11) @JsonFormat(pattern = "[1-9][0-9]{10}") String customerNationalIdentityNumber) {
-        CreditApplication creditApplication = creditApplicationService.getCreditApplicationByCustomer(customerNationalIdentityNumber);
-        return CREDIT_APPLICATION_MAPPER.toDto(creditApplication);
+    @PostMapping(value = "/create/{nationalIdentityNumber}")
+    public boolean createCreditApplication(@PathVariable @Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
+        Customer applyCustomer = customerService.getCustomer(nationalIdentityNumber);
+        if(creditApplicationService.isThereAnyActiveAndApprovedApplicationByCustomer(applyCustomer)) {
+            throw new InvalidCreditApplyException(", you can not apply again before obtaining credit or deleting the application!");
+        }
+        return creditApplicationService.createCreditApplication(applyCustomer);
     }
 
-    @PostMapping("/create")
-    public boolean createCreditApplication(@Valid @RequestBody CreditApplyDTO creditApplyingDTO) {
-        String customerNationalIdentityNumber = creditApplyingDTO.getCustomer().getNationalIdentityNumber();
-        customerProducer.publishCustomer(customerNationalIdentityNumber);
-        return creditApplicationService.createCreditApplication(CreditApplyMapper.toEntity(creditApplyingDTO));
+    @PutMapping(value = "/get-credit")
+    public boolean obtainCreditByCreditApplication(@Pattern(regexp = "[1-9][0-9]{10}")String nationalIdentityNumber) {
+        return obtainCreditService.obtainCreditByCreditApplication(
+                CREDIT_APPLICATION_MAPPER.toEntity(
+                        getActiveAndApprovedCreditApplicationByCustomer(nationalIdentityNumber)
+                )
+        );
     }
 
-    /*@DeleteMapping(value = "/delete")
-    public boolean deleteCreditApplication(@RequestParam @Min(1) Integer id) {
-        return creditApplicationService.deleteCreditApplication(id);
-    }*/
+    @DeleteMapping(value = "/delete")
+    public boolean deleteCreditApplication(@Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
+        Customer customer = customerService.getCustomer(nationalIdentityNumber);
+        return creditApplicationService.deleteCreditApplication(customer);
+    }
+
 }

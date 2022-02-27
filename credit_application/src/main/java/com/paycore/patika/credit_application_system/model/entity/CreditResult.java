@@ -2,6 +2,7 @@ package com.paycore.patika.credit_application_system.model.entity;
 
 public enum CreditResult {
 
+    NOT_RESULTED(0),
     REJECTED(500),
     APPROVED(1000);
 
