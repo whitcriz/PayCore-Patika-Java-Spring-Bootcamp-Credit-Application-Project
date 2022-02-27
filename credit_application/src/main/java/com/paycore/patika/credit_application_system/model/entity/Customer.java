@@ -6,16 +6,18 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.io.Serializable;
 import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Validated
 @Entity
 @Table(name = "customer")
-public class Customer {
+public class Customer implements Serializable {
 
     @Id
     @Column(name = "national_identity_number",length = 11,updatable = false, nullable = false)
@@ -48,8 +50,20 @@ public class Customer {
     @Transient
     private Integer creditScore;
 
-    @JsonIgnore
+    @Transient
     @OneToMany(fetch = LAZY, mappedBy = "customer", cascade = CascadeType.ALL,orphanRemoval = true)
+    //@JoinColumn(name = "application_id",referencedColumnName = "application_id")
     private List<CreditApplication> creditApplications;
 
+
+    public Customer(String nationalIdentityNumber, String name, String surname, Double monthlyIncome, String gender, Integer age, String phone, String email) {
+        this.nationalIdentityNumber = nationalIdentityNumber;
+        this.name = name;
+        this.surname = surname;
+        this.monthlyIncome = monthlyIncome;
+        this.gender = gender;
+        this.age = age;
+        this.phone = phone;
+        this.email = email;
+    }
 }

@@ -1,6 +1,7 @@
 package com.paycore.patika.credit_application_system.controller;
 
 import com.paycore.patika.credit_application_system.exception.InvalidRequestException;
+import com.paycore.patika.credit_application_system.exception.NotFoundException;
 import com.paycore.patika.credit_application_system.model.CustomerDTO;
 import com.paycore.patika.credit_application_system.model.entity.Customer;
 import com.paycore.patika.credit_application_system.model.mapper.CustomerMapper;
@@ -43,12 +44,10 @@ public class CustomerController {
 
     @PutMapping(value = "/update")
     public CustomerDTO updateCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
-        String nationalIdentityNumber = customerDTO.getNationalIdentityNumber();
-        if(nationalIdentityNumber == null) {
-            throw new InvalidRequestException("Customer National Identity Number can not be null for update!");
+        if(customerService.getCustomer(customerDTO.getNationalIdentityNumber())==null) {
+            throw new NotFoundException("Customer could not found for update");
         }
-        Customer customer = customerService.getCustomer(nationalIdentityNumber);
-        return CustomerMapper.toDto(customerService.updateCustomer(customer));
+        return CustomerMapper.toDto(customerService.updateCustomer(CustomerMapper.toEntity(customerDTO)));
     }
 
     @DeleteMapping(value = "/delete/{nationalIdentityNumber}")

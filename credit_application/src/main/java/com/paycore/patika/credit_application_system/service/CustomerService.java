@@ -14,5 +14,7 @@ public interface CustomerService {
 
     Customer updateCustomer(@RequestBody Customer customer);
 
+    Customer updateCustomerCreditScore(Customer customer);
+
     boolean deleteCustomer(String nationalIdentityNumber);
 }
