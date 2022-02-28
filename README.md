@@ -9,3 +9,7 @@ This is a credit application management project that uses credit score service p
 Used PostgreSQL as a relational database. Because I wanted to keep separate the business logic code from others, which is presentation layer with end points and the database ORM layer. In this way, anyone can both easily read and understand my code organization, also noone can not reach my business logic and this removes several vulnerabilities onto application. I also seperated the credit score service and credit application because even if they are dependent and share the same entity, credit score serviceis need to be away from customer interaction, it just can be used as an inner service, as a helpful service.
 
 Credit application project runs at `8080` port, credit score service runs at `8085` port and RabbitMQ management port is `15672`. 
+This is the Swagger documentation path that can be reached all endpoints and examples :
+
+[Swagger documentation](http://localhost:8080/credit/swagger-ui/index.html)
+
