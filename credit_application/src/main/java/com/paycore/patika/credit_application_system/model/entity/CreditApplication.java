@@ -12,7 +12,8 @@ import java.time.LocalDate;
 import static javax.persistence.FetchType.*;
 
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

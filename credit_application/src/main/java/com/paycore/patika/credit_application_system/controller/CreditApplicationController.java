@@ -1,6 +1,7 @@
 package com.paycore.patika.credit_application_system.controller;
 
 import com.paycore.patika.credit_application_system.exception.InvalidCreditApplyException;
+import com.paycore.patika.credit_application_system.messaging.producer.CustomerProducer;
 import com.paycore.patika.credit_application_system.model.CreditApplicationResultedDTO;
 import com.paycore.patika.credit_application_system.model.entity.*;
 import com.paycore.patika.credit_application_system.model.mapper.CreditApplicationResultedMapper;
@@ -25,9 +26,9 @@ public class CreditApplicationController {
 
     private final CustomerService customerService;
 
-    private final CreditApplicationRepository creditApplicationRepository;
-
     private final ObtainCreditService obtainCreditService;
+
+    private final CustomerProducer customerProducer;
 
     private static final CreditApplicationResultedMapper CREDIT_APPLICATION_MAPPER = Mappers.getMapper(CreditApplicationResultedMapper.class);
 
@@ -44,11 +45,12 @@ public class CreditApplicationController {
         if(creditApplicationService.isThereAnyActiveAndApprovedApplicationByCustomer(applyCustomer)) {
             throw new InvalidCreditApplyException(", you can not apply again before obtaining credit or deleting the application!");
         }
+        customerProducer.publishCustomer(applyCustomer);
         return creditApplicationService.createCreditApplication(applyCustomer);
     }
 
-    @PutMapping(value = "/get-credit")
-    public boolean obtainCreditByCreditApplication(@Pattern(regexp = "[1-9][0-9]{10}")String nationalIdentityNumber) {
+    @PutMapping(value = "/get-credit/{nationalIdentityNumber}")
+    public String obtainCreditByCreditApplication(@PathVariable @Pattern(regexp = "[1-9][0-9]{10}")String nationalIdentityNumber) {
         return obtainCreditService.obtainCreditByCreditApplication(
                 CREDIT_APPLICATION_MAPPER.toEntity(
                         getActiveAndApprovedCreditApplicationByCustomer(nationalIdentityNumber)
@@ -56,8 +58,8 @@ public class CreditApplicationController {
         );
     }
 
-    @DeleteMapping(value = "/delete")
-    public boolean deleteCreditApplication(@Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
+    @DeleteMapping(value = "/delete/{nationalIdentityNumber}")
+    public boolean deleteCreditApplication(@PathVariable @Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
         Customer customer = customerService.getCustomer(nationalIdentityNumber);
         return creditApplicationService.deleteCreditApplication(customer);
     }

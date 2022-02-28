@@ -20,7 +20,6 @@ public class CustomerDTO {
     private String surname;
 
     @NotBlank(message = "phone can not be null")
-    @Pattern(regexp = "05[0-9]{9}")
     private String phone;
 
     @Email

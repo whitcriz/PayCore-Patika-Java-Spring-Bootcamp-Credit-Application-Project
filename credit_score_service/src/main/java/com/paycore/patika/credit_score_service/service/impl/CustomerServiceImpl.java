@@ -6,7 +6,6 @@ import com.paycore.patika.credit_score_service.model.entity.Customer;
 import com.paycore.patika.credit_score_service.repository.CustomerRepository;
 import com.paycore.patika.credit_score_service.service.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +19,6 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
 
     private final CreditScoreProducer creditScoreProducer;
-
 
     private Integer CreditScoreCalculator() {
         Random random = new Random();
@@ -46,7 +44,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void updateCustomer(Customer customer) {
-        Customer updatedCustomer = customerRepository.save(customer);
+        customerRepository.save(customer);
     }
 
     @Override

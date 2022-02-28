@@ -13,15 +13,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE = "customer_queue";
-    public static final String EXCHANGE = "customer_exchange";
-    public static final String ROUTING_KEY = "customer_routingKey";
+    public static final String QUEUE = "apply_queue";
+    public static final String EXCHANGE = "apply_exchange";
+    public static final String ROUTING_KEY = "apply_routingKey";
 
-    public static final String QUEUE_SCORE = "score_queue";
-    public static final String EXCHANGE_SCORE = "score_exchange";
-    public static final String ROUTING_KEY_SCORE = "score_routingKey";
-
-
+    public static final String QUEUE_SCORE = "result_queue";
+    public static final String EXCHANGE_SCORE = "result_exchange";
+    public static final String ROUTING_KEY_SCORE = "result_routingKey";
 
     @Bean
     public Queue queue() {

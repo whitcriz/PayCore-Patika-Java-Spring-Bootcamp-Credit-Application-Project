@@ -11,9 +11,8 @@ import org.springframework.stereotype.Service;
 public class ObtainCreditServiceImpl implements ObtainCreditService {
 
     @Override
-    public boolean obtainCreditByCreditApplication(CreditApplication creditApplication) {
-        System.out.println("Approved credit limit " + creditApplication.getCreditLimit() + " TL has transferred to your account.");
+    public String obtainCreditByCreditApplication(CreditApplication creditApplication) {
         creditApplication.setApplicationStatus(ApplicationStatus.PASSIVE);
-        return true;
+        return "Approved credit limit " + creditApplication.getCreditLimit() + " TL has transferred to your account.";
     }
 }

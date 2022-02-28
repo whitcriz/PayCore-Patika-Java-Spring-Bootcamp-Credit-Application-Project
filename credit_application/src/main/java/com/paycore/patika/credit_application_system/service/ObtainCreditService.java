@@ -4,5 +4,5 @@ import com.paycore.patika.credit_application_system.model.entity.CreditApplicati
 
 public interface ObtainCreditService {
 
-    boolean obtainCreditByCreditApplication(CreditApplication creditApplication);
+    String obtainCreditByCreditApplication(CreditApplication creditApplication);
 }

@@ -11,7 +11,8 @@ import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Validated
@@ -52,7 +53,6 @@ public class Customer implements Serializable {
 
     @Transient
     @OneToMany(fetch = LAZY, mappedBy = "customer", cascade = CascadeType.ALL,orphanRemoval = true)
-    //@JoinColumn(name = "application_id",referencedColumnName = "application_id")
     private List<CreditApplication> creditApplications;
 
 

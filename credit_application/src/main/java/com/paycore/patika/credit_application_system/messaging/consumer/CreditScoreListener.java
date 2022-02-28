@@ -6,7 +6,6 @@ import com.paycore.patika.credit_application_system.model.RabbitCustomerDTO;
 import com.paycore.patika.credit_application_system.service.CreditApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -18,8 +17,7 @@ public class CreditScoreListener {
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_SCORE)
     public void consumeMessageFromQueue(RabbitCustomerDTO rabbitCustomerDTO) {
-        creditApplicationService.UpdateNotResultedApplication(
-                rabbitCustomerDTO.getCreditScore(),rabbitCustomerDTO.getNationalIdentityNumber());
+        creditApplicationService.UpdateNotResultedApplication(rabbitCustomerDTO.getCreditScore(),rabbitCustomerDTO.getNationalIdentityNumber());
         System.out.println("Successfully received credit score and resulted credit application");
     }
 

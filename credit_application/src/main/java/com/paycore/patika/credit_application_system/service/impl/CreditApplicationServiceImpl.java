@@ -18,7 +18,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
 
     private final CreditApplicationRepository creditApplicationRepository;
     private final NotificationService notificationService;
-    private final CustomerProducer customerProducer;
+
 
     @Override
     public boolean createCreditApplication(Customer customer) {
@@ -26,7 +26,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         creditApplication.setCreditResult(CreditResult.NOT_RESULTED);
         creditApplication.setApplicationStatus(ApplicationStatus.ACTIVE);
         creditApplicationRepository.save(creditApplication);
-        customerProducer.publishCustomer(customer);
+
         return true;
     }
 
@@ -57,6 +57,14 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                         && c.getApplicationStatus().equals(ApplicationStatus.ACTIVE)
                         && c.getCreditResult().equals(CreditResult.APPROVED));
     }
+
+    private CreditApplication getNotResultedCreditApplicationByCustomer(String nationalIdentityNumber) {
+        return creditApplicationRepository.findAll().stream()
+                .filter(c -> c.getCustomer().getNationalIdentityNumber().matches(nationalIdentityNumber) && c.getCreditResult().equals(CreditResult.NOT_RESULTED))
+                .findAny()
+                .orElseThrow(()-> new NotFoundException("Not Resulted Credit Application"));
+    }
+
 
     @Override
     public void UpdateNotResultedApplication(Integer score, String nationalIdentityNumber) {
@@ -102,13 +110,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     public boolean deleteCreditApplication(Customer customer) {
         creditApplicationRepository.delete(getActiveAndApprovedCreditApplicationByCustomer(customer));
         return true;
-    }
-
-    private CreditApplication getNotResultedCreditApplicationByCustomer(String nationalIdentityNumber) {
-        return creditApplicationRepository.findAll().stream()
-                .filter(c -> c.getCustomer().getNationalIdentityNumber().matches(nationalIdentityNumber) && c.getCreditResult().equals(CreditResult.NOT_RESULTED))
-                .findAny()
-                     .orElseThrow(()-> new NotFoundException("Not Resulted Credit Application"));
     }
 
 }

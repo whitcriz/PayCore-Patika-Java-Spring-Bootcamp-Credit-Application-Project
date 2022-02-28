@@ -4,8 +4,6 @@ import com.paycore.patika.credit_application_system.config.RabbitMQConfig;
 import com.paycore.patika.credit_application_system.model.RabbitCustomerDTO;
 import com.paycore.patika.credit_application_system.model.entity.Customer;
 import com.paycore.patika.credit_application_system.model.mapper.RabbitCustomerMapper;
-import com.paycore.patika.credit_application_system.repository.CustomerRepository;
-import com.paycore.patika.credit_application_system.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.factory.Mappers;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
