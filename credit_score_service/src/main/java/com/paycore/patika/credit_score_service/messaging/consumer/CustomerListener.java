@@ -21,16 +21,17 @@ public class CustomerListener {
 
     private final CustomerRepository customerRepository;
 
+    private static final CustomerMapper CUSTOMER_MAPPER = Mappers.getMapper(CustomerMapper.class);
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE)
-    public void consumeMessageFromQueue(Customer customer) {
-
+    public void consumeMessageFromQueue(CustomerDTO customerDTO) {
+        System.out.println("Successfully received a customer");
+        Customer customer = CUSTOMER_MAPPER.toEntity(customerDTO);
         Customer creditCustomer = customerRepository.findAll().stream()
-                .filter(c -> c.getNationalIdentityNumber().matches(customer.getNationalIdentityNumber()))
-                        .findAny()
-                .orElse(customerService.addCustomer(customer));
-
-        customerService.updateCustomer(creditCustomer);
-
+                                        .filter(c -> c.getNationalIdentityNumber().equals(customer.getNationalIdentityNumber()))
+                                        .findAny()
+                                        .orElse(customerService.addCustomer(customer));
+        System.out.println("taken customer");
+        customerService.updateCreditScore(creditCustomer);
     }
 }

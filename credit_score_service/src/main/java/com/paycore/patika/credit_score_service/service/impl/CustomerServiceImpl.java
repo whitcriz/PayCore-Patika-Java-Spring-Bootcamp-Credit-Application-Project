@@ -22,12 +22,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     private Integer CreditScoreCalculator() {
         Random random = new Random();
-        return random.nextInt(2000)+1;
+        return random.nextInt(1850)+200;
     }
 
     @Override
     public Customer addCustomer(Customer customer) {
-        customer.setCreditScore(CreditScoreCalculator());
+        String identityLast = customer.getNationalIdentityNumber().substring(8);
+        customer.setCreditScore(CreditScoreCalculator() + Integer.parseInt(identityLast));
         return customerRepository.save(customer);
     }
 
@@ -49,7 +50,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void updateCreditScore(Customer customer) {
-        customer.setCreditScore(CreditScoreCalculator());
+        String identityFirst = customer.getNationalIdentityNumber().substring(0,3);
+        customer.setCreditScore(CreditScoreCalculator() + Integer.parseInt(identityFirst));
         Customer updatedCustomer = customerRepository.save(customer);
         creditScoreProducer.publishCreditScore(updatedCustomer);
     }
