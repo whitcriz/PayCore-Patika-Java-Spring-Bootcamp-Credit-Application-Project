@@ -51,7 +51,12 @@ public class CreditApplication {
     @ManyToOne(fetch = LAZY)
     private Customer customer;
 
-    public CreditApplication(Customer customer) {
+    public CreditApplication(CreditResult creditResult, Double creditLimit, ApplicationStatus applicationStatus, Customer customer) {
+        this.creditResult = creditResult;
+        this.creditLimit = creditLimit;
+        this.applicationStatus = applicationStatus;
         this.customer = customer;
     }
+
+    public CreditApplication(Customer customer) {this.customer = customer;}
 }

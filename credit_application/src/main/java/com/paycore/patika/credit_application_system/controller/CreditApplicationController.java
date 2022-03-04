@@ -23,12 +23,8 @@ import javax.validation.constraints.Pattern;
 public class CreditApplicationController {
 
     private final CreditApplicationService creditApplicationService;
-
     private final CustomerService customerService;
-
     private final ObtainCreditService obtainCreditService;
-
-    private final CustomerProducer customerProducer;
 
     private static final CreditApplicationResultedMapper CREDIT_APPLICATION_MAPPER = Mappers.getMapper(CreditApplicationResultedMapper.class);
 
@@ -40,12 +36,11 @@ public class CreditApplicationController {
     }
 
     @PostMapping(value = "/create/{nationalIdentityNumber}")
-    public boolean createCreditApplication(@PathVariable @Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
+    public String createCreditApplication(@PathVariable @Pattern(regexp = "[1-9][0-9]{10}") String nationalIdentityNumber) {
         Customer applyCustomer = customerService.getCustomer(nationalIdentityNumber);
-        if(creditApplicationService.isThereAnyActiveAndApprovedApplicationByCustomer(applyCustomer)) {
-            throw new InvalidCreditApplyException(", you can not apply again before obtaining credit or deleting the application!");
+        if(creditApplicationService.isThereAnyActiveApplicationByCustomer(applyCustomer)) {
+            throw new InvalidCreditApplyException("and have not resulted yet, you will be informed via phone message when resulted.");
         }
-        customerProducer.publishCustomer(applyCustomer);
         return creditApplicationService.createCreditApplication(applyCustomer);
     }
 

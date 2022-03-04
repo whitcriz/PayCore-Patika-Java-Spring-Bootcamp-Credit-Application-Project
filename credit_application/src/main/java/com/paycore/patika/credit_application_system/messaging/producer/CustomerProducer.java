@@ -24,6 +24,6 @@ public class CustomerProducer {
     @PostMapping("/customer")
     public String publishCustomer(Customer customer) {
         template.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, RABBIT_CUSTOMER_MAPPER.toDto(customer));
-        return "Successfully created application";
+        return "Created a credit application successfully ";
     }
 }

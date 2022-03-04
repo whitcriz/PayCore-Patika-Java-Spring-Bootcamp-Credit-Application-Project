@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface CreditApplicationService {
 
-    boolean createCreditApplication(Customer customer);
+    String createCreditApplication(Customer customer);
 
     CreditApplication getActiveAndApprovedCreditApplicationByCustomer(Customer customer);
 
-    boolean isThereAnyActiveAndApprovedApplicationByCustomer(Customer customer);
+    boolean isThereAnyActiveApplicationByCustomer(Customer customer);
 
-    void UpdateNotResultedApplication(Integer creditScore, String nationalIdentityNumber);
+    void UpdateNotResultedApplication(Customer customer);
 
     boolean deleteCreditApplication(Customer customer);
 

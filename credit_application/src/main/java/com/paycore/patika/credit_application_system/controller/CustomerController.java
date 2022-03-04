@@ -45,7 +45,7 @@ public class CustomerController {
     @PutMapping(value = "/update")
     public CustomerDTO updateCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
         if(customerService.getCustomer(customerDTO.getNationalIdentityNumber())==null) {
-            throw new NotFoundException("Customer could not found for update");
+            throw new NotFoundException("Customer for update");
         }
         return CustomerMapper.toDto(customerService.updateCustomer(CustomerMapper.toEntity(customerDTO)));
     }

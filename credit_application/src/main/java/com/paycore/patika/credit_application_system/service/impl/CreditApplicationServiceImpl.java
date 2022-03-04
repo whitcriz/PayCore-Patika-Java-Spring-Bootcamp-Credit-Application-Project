@@ -18,16 +18,13 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
 
     private final CreditApplicationRepository creditApplicationRepository;
     private final NotificationService notificationService;
-
+    private final CustomerProducer customerProducer;
 
     @Override
-    public boolean createCreditApplication(Customer customer) {
-        CreditApplication creditApplication = new CreditApplication(customer);
-        creditApplication.setCreditResult(CreditResult.NOT_RESULTED);
-        creditApplication.setApplicationStatus(ApplicationStatus.ACTIVE);
+    public String createCreditApplication(Customer customer) {
+        CreditApplication creditApplication = new CreditApplication(CreditResult.NOT_RESULTED,null, ApplicationStatus.ACTIVE, customer);
         creditApplicationRepository.save(creditApplication);
-
-        return true;
+        return customerProducer.publishCustomer(customer);
     }
 
 
@@ -51,50 +48,65 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     }
 
     @Override
-    public boolean isThereAnyActiveAndApprovedApplicationByCustomer(Customer customer) {
+    public boolean isThereAnyActiveApplicationByCustomer(Customer customer) {
+        if(isThereAnyActiveAndApprovedApplicationByCustomer(customer)) {
+            throw new InvalidCreditApplyException(", you can not apply again before obtaining credit or deleting the application!");
+        }
         return creditApplicationRepository.findAll().stream()
                 .anyMatch(c -> c.getCustomer().equals(customer)
-                        && c.getApplicationStatus().equals(ApplicationStatus.ACTIVE)
-                        && c.getCreditResult().equals(CreditResult.APPROVED));
+                        && c.getApplicationStatus().equals(ApplicationStatus.ACTIVE));
     }
 
-    private CreditApplication getNotResultedCreditApplicationByCustomer(String nationalIdentityNumber) {
-        return creditApplicationRepository.findAll().stream()
-                .filter(c -> c.getCustomer().getNationalIdentityNumber().matches(nationalIdentityNumber) && c.getCreditResult().equals(CreditResult.NOT_RESULTED))
+    private boolean isThereAnyActiveAndApprovedApplicationByCustomer(Customer customer) {
+         return creditApplicationRepository.findAll().stream()
+                 .anyMatch(c -> c.getCustomer().equals(customer)
+                             && c.getApplicationStatus().equals(ApplicationStatus.ACTIVE)
+                             && c.getCreditResult().equals(CreditResult.APPROVED));
+    }
+
+    private CreditApplication getNotResultedCreditApplicationByCustomer(Customer customer) {
+        return customer.getCreditApplications().stream()
+                .filter(c -> c.getCreditResult().equals(CreditResult.NOT_RESULTED))
                 .findAny()
-                .orElseThrow(()-> new NotFoundException("Not Resulted Credit Application"));
+                .get();
     }
 
+    private void creditLimitCalculator(CreditApplication application) {
 
-    @Override
-    public void UpdateNotResultedApplication(Integer score, String nationalIdentityNumber) {
-
-        CreditApplication applicationResulting = getNotResultedCreditApplicationByCustomer(nationalIdentityNumber);
-
-        applicationResulting.getCustomer().setCreditScore(score);
-        Double income = applicationResulting.getCustomer().getMonthlyIncome();
-        Integer creditMultiplier = applicationResulting.getCreditMultiplier();
+        Customer creditCustomer = application.getCustomer();
+        Integer score = creditCustomer.getCreditScore();
+        Double income = creditCustomer.getMonthlyIncome();
+        Integer creditMultiplier = application.getCreditMultiplier();
 
         boolean creditLimitCondition = (income >= CreditLimit.HIGHER.getIncomeLimit());
-        boolean creditScoreConditionForApproval = (score >= CreditResult.REJECTED.getCreditScoreLimit());
         boolean creditScoreConditionForSpecialLimit = (score >= CreditResult.APPROVED.getCreditScoreLimit());
+
+        if (creditScoreConditionForSpecialLimit) {
+            CreditLimit.SPECIAL.setCreditLimitAmount(income * creditMultiplier);
+            application.setCreditLimit(CreditLimit.SPECIAL.getCreditLimitAmount());
+
+        }else if(creditLimitCondition){
+
+            application.setCreditLimit(CreditLimit.HIGHER.getCreditLimitAmount());
+
+        }else{
+
+            application.setCreditLimit(CreditLimit.LOWER.getCreditLimitAmount());
+        }
+    }
+
+    @Override
+    public void UpdateNotResultedApplication(Customer creditCustomer) {
+        CreditApplication applicationResulting = getNotResultedCreditApplicationByCustomer(creditCustomer);
+        System.out.println("getting credit application for resulting");
+
+        Integer score = creditCustomer.getCreditScore();
+        boolean creditScoreConditionForApproval = (score >= CreditResult.REJECTED.getCreditScoreLimit());
 
         if(creditScoreConditionForApproval) {
 
             applicationResulting.setCreditResult(CreditResult.APPROVED);
-
-            if (creditScoreConditionForSpecialLimit) {
-                CreditLimit.SPECIAL.setCreditLimitAmount(income * creditMultiplier);
-                applicationResulting.setCreditLimit(CreditLimit.SPECIAL.getCreditLimitAmount());
-
-            }else if(creditLimitCondition){
-
-                 applicationResulting.setCreditLimit(CreditLimit.HIGHER.getCreditLimitAmount());
-
-            }else{
-
-                applicationResulting.setCreditLimit(CreditLimit.LOWER.getCreditLimitAmount());
-            }
+            creditLimitCalculator(applicationResulting);
 
         } else {
             applicationResulting.setCreditResult(CreditResult.REJECTED);
@@ -102,6 +114,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         }
 
         creditApplicationRepository.save(applicationResulting);
+        System.out.println("resulted the application");
         System.out.println(notificationService.sendMessageForResult(applicationResulting));
     }
 
